@@ -1,0 +1,9 @@
+## Ryan Elmore
+## 15 Mar 2011
+## NBA scratch pad
+
+## Copyright (c) 2010, under the Simplified BSD License.  
+## For more information on FreeBSD see: 
+##      http://www.opensource.org/licenses/bsd-license.php
+## All rights reserved.                      
+
