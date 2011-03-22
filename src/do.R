@@ -36,7 +36,8 @@ for (team in teams){
     names(stats.one) <- table.stats[1]$`NULL`[1, ]
     stats.two <- table.stats[2]$`NULL`[-1, ]
     names(stats.two) <- table.stats[2]$`NULL`[1, ]
-    df.team <- cbind(stats.one, stats.two[, -(2:3)])
+    df.team <- merge(stats.one, stats.two[, -(2:3)], by.x="Player", 
+                     by.y="Player")
     df.team$team <- team
   }
   else {
@@ -48,7 +49,8 @@ for (team in teams){
     nRecords <- dim(stats.one)[1]
     stats.two <- table.stats[[2]][-(1:3), -(2:3)]
     names(stats.two) <- table.stats[[2]][3, -(2:3)]
-    df.team <- cbind(stats.one[-nRecords, ], stats.two[-nRecords, ])
+    df.team <- merge(stats.one[-nRecords, ], stats.two[-nRecords, ], 
+                     by.x="Player", by.y="Player")
     df.team$team <- team
   }
   df.statistics <- rbind(df.statistics, df.team)
