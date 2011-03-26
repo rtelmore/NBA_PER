@@ -34,8 +34,10 @@ for (team in teams){
     table.stats <- readHTMLTable(nba.url)
     stats.one <- table.stats[1]$`NULL`[-1, ]
     names(stats.one) <- table.stats[1]$`NULL`[1, ]
+    stats.one$Player[stats.one$Player == "Team Averages"] <- "Team Statistics"
     stats.two <- table.stats[2]$`NULL`[-1, ]
     names(stats.two) <- table.stats[2]$`NULL`[1, ]
+    stats.two$Player[stats.two$Player == "Team Totals"] <- "Team Statistics"
     df.team <- merge(stats.one, stats.two[, -(2:3)], by.x="Player", 
                      by.y="Player")
     df.team$team <- team
@@ -46,9 +48,11 @@ for (team in teams){
     table.stats <- lapply(nset.stats, readHTMLTable, header=F)
     stats.one <- table.stats[[1]][-(1:3), ]
     names(stats.one) <- table.stats[[1]][3, ]
+    stats.one$Player[stats.one$Player == "Team Averages"] <- "Team Statistics"
     nRecords <- dim(stats.one)[1]
     stats.two <- table.stats[[2]][-(1:3), -(2:3)]
     names(stats.two) <- table.stats[[2]][3, -(2:3)]
+    stats.two$Player[stats.two$Player == "Team Totals"] <- "Team Statistics"
     df.team <- merge(stats.one[-nRecords, ], stats.two[-nRecords, ], 
                      by.x="Player", by.y="Player")
     df.team$team <- team
@@ -64,6 +68,19 @@ out.file <- paste(wd.path, "data/nba_",
                   sep ="")
 write.table(df.statistics, file=out.file, sep=";", col.names=FALSE)
 
+
+## grep("(TOT)", df.statistics$Player)
+
+## Get the team data
+standings.url <- 
+  "http://www.nba.com/standings/team_record_comparison/conferenceNew_Std_Alp.html"
+
+table.standings <- readHTMLTable(standings.url)[[3]]
+names(table.standings) <- table.standings[2, ]
+team.standings <- table.standings[-(1:2), ]
+
 final.string <- paste(Sys.time(), " -- Finished :)", sep="")
 print(final.string)
 
+
+## Read in Data
