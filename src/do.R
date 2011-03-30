@@ -66,7 +66,7 @@ for (team in teams){
 out.file <- paste(wd.path, "data/nba_", 
                   paste(format(Sys.Date(), "%Y%m%d"), ".csv", sep=""), 
                   sep ="")
-write.table(df.statistics, file=out.file, sep=";", col.names=FALSE)
+write.table(df.statistics, file=out.file, sep=";", col.names=TRUE)
 
 
 ## grep("(TOT)", df.statistics$Player)
@@ -78,9 +78,34 @@ standings.url <-
 table.standings <- readHTMLTable(standings.url)[[3]]
 names(table.standings) <- table.standings[2, ]
 team.standings <- table.standings[-(1:2), ]
+out.team <- paste(wd.path, "data/team_", 
+                  paste(format(Sys.Date(), "%Y%m%d"), ".csv", sep=""), 
+                  sep ="")
+write.table(team.standings, file=out.team, sep=";", col.names=TRUE)
 
+team.standings$mascot <- unique(df.statistics$team)
+
+team.dat <- df.statistics[grep("Team Statistics", df.statistics$Player), ]
+opp.dat <- df.statistics[grep("Opponents", df.statistics$Player), ]
+#team.dat$mascot <- unique(df.statistics$team)
+team.dat$win <- team.standings$W
+team.dat$loss <- team.standings$L
+
+total.dat <- merge(team.dat, opp.dat, by.x="team", by.y="team")
+## Model 1
+win.glm.1 <- glm(cbind(as.numeric(win),as.numeric(loss)) ~ as.numeric(APG.x) + 
+                 as.numeric(SPG.x) + as.numeric(BPG.x) + as.numeric(OFF.x.x) +
+                 as.numeric(TO.x.x) + as.numeric(PF.x.x) +
+                 as.numeric(SPG.y) + as.numeric(BPG.y) + as.numeric(OFF.y.y) +
+                 as.numeric(TO.x.y) + as.numeric(PF.x.y) +
+                 as.numeric(APG.y), family=binomial, data=total.dat)
+
++ as.numeric(PPG.x)
++ as.numeric(PPG.y) 
+summary(win.glm.1)
 final.string <- paste(Sys.time(), " -- Finished :)", sep="")
 print(final.string)
 
 
 ## Read in Data
+df.statistics <- read.csv(paste(wd.path, "data/nba_20110326.csv", sep=""))
