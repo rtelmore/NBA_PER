@@ -85,14 +85,40 @@ write.table(team.standings, file=out.team, sep=";", col.names=TRUE)
 
 team.standings$mascot <- unique(df.statistics$team)
 
+
+
+## Read in Data
+df.statistics <- read.csv(paste(wd.path, "data/nba_20110329.csv", sep=""), 
+                          sep=";")
+team.standings <- read.csv(paste(wd.path, "data/team_20110329.csv", sep=""),
+                           sep=";")
 team.dat <- df.statistics[grep("Team Statistics", df.statistics$Player), ]
 opp.dat <- df.statistics[grep("Opponents", df.statistics$Player), ]
 #team.dat$mascot <- unique(df.statistics$team)
-team.dat$win <- team.standings$W
-team.dat$loss <- team.standings$L
+team.dat$win <- as.numeric(team.standings$W)
+team.dat$loss <- as.numeric(team.standings$L)
 
 total.dat <- merge(team.dat, opp.dat, by.x="team", by.y="team")
-## Model 1
+total.dat[, "APG.x"] <- as.numeric(total.dat$APG.x)
+total.dat[, "SPG.x"] <- as.numeric(total.dat$SPG.x)
+total.dat[, "BPG.x"] <- as.numeric(total.dat$BPG.x)
+
+## Model for winning %age
+win.glm.1 <- glm(cbind(as.numeric(win),as.numeric(loss)) ~ as.numeric(APG.x) + 
+                 as.numeric(SPG.x) + as.numeric(BPG.x) + as.numeric(OFF.x.x) +
+                 as.numeric(SPG.y) + as.numeric(BPG.y) + as.numeric(OFF.y.y),
+                 family=binomial, data=total.dat)
+
+win.glm.2 <- glm(cbind(as.numeric(win), as.numeric(loss)) ~
+                 as.numeric(FG..x) + as.numeric(X3p..x) + as.numeric(FT..x) +
+                 as.numeric(FG..y) + as.numeric(X3p..y) + as.numeric(FT..y),
+                 family=binomial, data=total.dat)
+
+## Models for wins
+pairs(total.dat[, c("win", "APG.x", "BPG.x", "SPG.x")])
+
+win.lm.1 <- lm(win ~ APG.x + BPG.x + SPG.x, data=total.dat)
+
 win.glm.1 <- glm(cbind(as.numeric(win),as.numeric(loss)) ~ as.numeric(APG.x) + 
                  as.numeric(SPG.x) + as.numeric(BPG.x) + as.numeric(OFF.x.x) +
                  as.numeric(TO.x.x) + as.numeric(PF.x.x) +
@@ -105,7 +131,3 @@ win.glm.1 <- glm(cbind(as.numeric(win),as.numeric(loss)) ~ as.numeric(APG.x) +
 summary(win.glm.1)
 final.string <- paste(Sys.time(), " -- Finished :)", sep="")
 print(final.string)
-
-
-## Read in Data
-df.statistics <- read.csv(paste(wd.path, "data/nba_20110326.csv", sep=""))
