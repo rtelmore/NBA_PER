@@ -131,3 +131,31 @@ win.glm.1 <- glm(cbind(as.numeric(win),as.numeric(loss)) ~ as.numeric(APG.x) +
 summary(win.glm.1)
 final.string <- paste(Sys.time(), " -- Finished :)", sep="")
 print(final.string)
+
+## Mean substitution
+set.seed(1234)
+x <- data.frame(x=round(rnorm(500, m=69, s=3)))
+
+x.mean <- round(mean(x$x))
+
+mean(c(x$x, rep(x.mean, 500)))
+
+var(x)
+var(c(x$x, rep(x.mean, 500)))
+
+p <- ggplot(data=x, aes(x))
+p + geom_density() +
+  scale_x_continuous("height (in inches)")
+  
+ggsave("../fig/height.png", hei=7, wid=7)
+
+xx <- data.frame(x=c(rep(x$x, 2), rep(x.mean, 500)), 
+                 dataset=c(rep("original", 500), rep("imputed", 1000)))
+
+p <- ggplot(data=xx, aes(x, fill=dataset))
+p + geom_density(alpha = I(0.35)) +
+  scale_x_continuous("height (in inches)")
+  
+ggsave("../fig/height_total.png", hei=, wid=7)
+
+  
